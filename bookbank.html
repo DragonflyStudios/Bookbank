@@ -1,0 +1,35 @@
+<head>
+  <title>Children's Bookbank</title>
+</head>
+
+<body>
+  <div id="outer">
+    {{> hello}}
+    {{> titles}}
+  </div>
+</body>
+
+<template name="hello">
+  <h1>{{greeting}}</h1>
+</template>
+
+<template name="add_a_book">
+</template>
+
+<template name="titles">
+  <div class="titles">
+    {{#each titles_in_stock}}
+      {{> book}}
+    {{/each}}
+  </div>
+</template>
+
+<template name="book">
+  <div class="book">
+    <span class="title">{{title}}</span>
+    <span class="count">{{count}}</span>
+    <input type="button" class="inc" value="Increment" />
+    <input type="button" class="dec" value="Decrement" />
+  </div>
+</template>
+
