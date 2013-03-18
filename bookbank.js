@@ -2,7 +2,7 @@ Titles = new Meteor.Collection("titles");
 
 if (Meteor.isClient) {
   Template.hello.greeting = function () {
-    return "Welcome to the Children's Book Bank!";
+    return "Books Given Away Today at the Children's Book Bank!";
   };
 
   Template.titles.titles_in_stock = function () {
@@ -31,6 +31,14 @@ if (Meteor.isServer) {
                    "Turing, the Enigma", 5];
       for (var i = 0; i < titles.length; i+=2)
         Titles.insert({title: titles[i], count: titles[i+1]});
+    }
+
+    if (Titles.findOne({author: {$exists : false}})) {
+      Titles.update({}, {$set: {author: "author name here"}}, {multi: true});
+    }
+
+    if (Titles.findOne({isbn: {$exists : false}})) {
+      Titles.update({}, {$set: {isbn: "isbn here"}}, {multi: true});
     }
   });
 }
