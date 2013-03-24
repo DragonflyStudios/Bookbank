@@ -1,10 +1,22 @@
 
+Documentation:
+
+ISBN: http://en.wikipedia.org/wiki/International_Standard_Book_Number
+
+~~
+
+Libraries:
+
+1. ISBNJS: https://code.google.com/p/isbnjs/
+
+~~
 
 To Do:
 
 
 [ ] Pull book record from Google Books API
-[ ] ISBN validation
+
+[x] ISBN validation
 
 [x] Make ISBN an editable field
 [x] '-' & '+' buttons around the number

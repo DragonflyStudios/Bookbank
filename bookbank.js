@@ -12,12 +12,19 @@ if (Meteor.isClient) {
   Template.book.events({
     'keypress input.isbn': function(event) {
       if (event.which == 13) {
-        var new_isbn = event.target.value;
+        var isbn = ISBN.parse(event.target.value.trim());
 
-        // TODO: isbn validation
-        Titles.update(this._id, {$set: {isbn: new_isbn}, $inc: {count: 1}});
+        if (isbn) {
+          Titles.update(this._id, {$set: {isbn: isbn.asIsbn13()}, $inc: {count: 1}});
+        
+          // TODO: pull data from Google Books API and update record ...
+        } else {
+          isbn = ISBN.parse(this.isbn);
+        }
 
-        // TODO: pull data from Google Books API and update record ...
+        // TODO: figure out how to display with hyphenation
+        console.log(isbn.asIsbn13(true));
+        event.target.value = isbn.asIsbn13(true);
       }
     },
 
@@ -34,6 +41,9 @@ if (Meteor.isClient) {
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
+    // TODO: populate with initial set of ISBNs
+    // TODO: validate ISBN ...
+
     if (Titles.find().count() === 0) {
       var titles = ["Bridge to Terabithia", 2,
                    "One Hundred Years of Solitude", 99,
