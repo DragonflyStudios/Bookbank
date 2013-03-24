@@ -48,8 +48,8 @@ h1 { font-size: 175%; font-weight: bold; text-align: center; }
     display: inline-block;
     font-size: 1.25em;
     font-weight: bold;
-    text-align: right;
-    width: 10%;
+    text-align: center;
+    width: 5%;
 }
 
 .book .button {

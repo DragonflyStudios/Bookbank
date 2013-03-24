@@ -10,12 +10,24 @@ if (Meteor.isClient) {
   };
 
   Template.book.events({
-    'click input.inc': function() {
-      Titles.update(this._id, {$inc: {count: 1}});
+    'keypress input.isbn': function(event) {
+      if (event.which == 13) {
+        var new_isbn = event.target.value;
+
+        // TODO: isbn validation
+        Titles.update(this._id, {$set: {isbn: new_isbn}, $inc: {count: 1}});
+
+        // TODO: pull data from Google Books API and update record ...
+      }
     },
 
     'click input.dec': function() {
-      Titles.update(this._id, {$inc: {count: (this.count > 0) ? -1 : 0}});
+      if (this.count > 0)
+        Titles.update(this._id, {$inc: {count: -1}});
+    },
+
+    'click input.inc': function() {
+      Titles.update(this._id, {$inc: {count: 1}});
     }
   });
 }

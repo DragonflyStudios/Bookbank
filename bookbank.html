@@ -28,9 +28,10 @@
   <div class="book">
     <span class="title">{{title}}</span>
     <span class="author">{{author}}</span>
-    <span class="isbn">{{isbn}}</span>
+    <input type="text" class="isbn" value="{{isbn}}" />
+    <input type="button" class="dec" value=" - " />
     <span class="count">{{count}}</span>
-    <input type="button" class="get_book_info" value="Get Book Info" />
+    <input type="button" class="inc" value=" + " />
   </div>
 </template>
 
