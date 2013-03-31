@@ -1,30 +1,52 @@
 Titles = new Meteor.Collection("titles");
 
 if (Meteor.isClient) {
-  Template.hello.greeting = function () {
-    return "Books Given Away Today at the Children's Book Bank!";
+
+  // TODO: today seems a good candidate for a standard helper
+  Template.daily_out.today = function () {
+    return new Date().toDateString();
   };
 
   Template.titles.titles_in_stock = function () {
     return Titles.find({}, {sort: {title: 1}});
   };
 
-  Template.book.events({
+  Template.isbn_input.new_isbn = function () {
+    return Session.get("new_isbn") || "";
+  };
+
+  Template.isbn_input.events({
     'keypress input.isbn': function(event) {
       if (event.which == 13) {
         var isbn = ISBN.parse(event.target.value.trim());
 
         if (isbn) {
-          Titles.update(this._id, {$set: {isbn: isbn.asIsbn13()}, $inc: {count: 1}});
-        
-          // TODO: pull data from Google Books API and update record ...
-        } else {
-          isbn = ISBN.parse(this.isbn);
-        }
+          console.log(isbn.asIsbn13(true));
+          event.target.value = isbn.asIsbn13();
 
-        // TODO: figure out how to display with hyphenation
-        console.log(isbn.asIsbn13(true));
-        event.target.value = isbn.asIsbn13(true);
+          var newIsbn = isbn.asIsbn13();
+          Session.set("new_isbn", newIsbn);
+          var item = Titles.findOne({isbn: newIsbn});
+ 
+          if (item) {
+            Titles.update(item._id, {$inc: {count: 1}});
+          } else {
+            Meteor.call('queryIsbn', newIsbn, function(error, result) {
+              if (result.statusCode == 200) 
+                var content = EJSON.parse(result.content);
+                if (content.totalItems >= 1) {
+                  var volumeInfo = content.items[0].volumeInfo;
+                  if (volumeInfo) {
+                    var title = volumeInfo.title;
+                    var author = volumeInfo.authors.join(", ");
+
+                    Titles.insert({title: title, author: author, isbn: newIsbn, count: 1});
+                  }
+                }
+              }
+            );
+          }
+        }
       }
     },
 
@@ -41,26 +63,40 @@ if (Meteor.isClient) {
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
-    // TODO: populate with initial set of ISBNs
-    // TODO: validate ISBN ...
-
     if (Titles.find().count() === 0) {
-      var titles = ["Bridge to Terabithia", 2,
-                   "One Hundred Years of Solitude", 99,
-                   "Effective Java", 1,
-                   "Inkspell", 0,
-                   "Charlotte's Web", 3,
-                   "Turing, the Enigma", 5];
-      for (var i = 0; i < titles.length; i+=2)
-        Titles.insert({title: titles[i], count: titles[i+1]});
-    }
+      var isbns = ['1550373927', '0534420753', '0241105161', '7544253996', '9780671449025', '9781470104009'];
+/* TODO: 9787544253994 or its equivalent 7544253996 fails to be parsed by ISBN.js */
+      for (var i = 0; i < isbns.length; i++) {
+        var isbn = ISBN.parse(isbns[i]);
 
-    if (Titles.findOne({author: {$exists : false}})) {
-      Titles.update({}, {$set: {author: "author name here"}}, {multi: true});
-    }
+        if (!isbn)
+          continue;
 
-    if (Titles.findOne({isbn: {$exists : false}})) {
-      Titles.update({}, {$set: {isbn: "isbn here"}}, {multi: true});
+        isbn13 = isbn.asIsbn13();
+
+        var response = Meteor.http.get("https://www.googleapis.com/books/v1/volumes?q=isbn:" + isbn13);
+        if (response.statusCode != 200) 
+          continue;
+
+        var content = EJSON.parse(response.content);
+        if (content.totalItems < 1)
+          continue;
+
+        var volumeInfo = content.items[0].volumeInfo;
+        if (!volumeInfo)
+          continue;
+
+        var title = volumeInfo.title;
+        var author = volumeInfo.authors.join(", ");
+        Titles.insert({title: title, author: author, isbn: isbn13, count: 0});
+      }
+    }
+  });
+
+  Meteor.methods({
+    queryIsbn: function (isbn) {
+      this.unblock();
+      return Meteor.http.get("https://www.googleapis.com/books/v1/volumes?q=isbn:" + isbn);
     }
   });
 }
