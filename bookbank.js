@@ -2,6 +2,8 @@ Titles = new Meteor.Collection("titles");
 
 if (Meteor.isClient) {
 
+  Meteor.subscribe("todays_books");
+
   // TODO: today seems a good candidate for a standard helper
   Template.daily_out.today = function () {
     return new Date().toDateString();
@@ -62,6 +64,12 @@ if (Meteor.isClient) {
 }
 
 if (Meteor.isServer) {
+  Meteor.publish("todays_books", function () {
+    var start = new Date().getDay();
+    var end = start;
+    return Titles.find({date: {$gte: start, $lte: end}});
+  });
+
   Meteor.startup(function () {
     if (Titles.find().count() === 0) {
       var isbns = ['1550373927', '0534420753', '0241105161', '7544253996', '9780671449025', '9781470104009'];
@@ -88,7 +96,7 @@ if (Meteor.isServer) {
 
         var title = volumeInfo.title;
         var author = volumeInfo.authors.join(", ");
-        Titles.insert({title: title, author: author, isbn: isbn13, count: 0});
+        Titles.insert({title: title, author: author, isbn: isbn13, date: new Date(), count: 1});
       }
     }
   });

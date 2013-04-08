@@ -24,6 +24,8 @@ Features
     [ ] Maintain a database of books checked out
         [ ] A flat one with a record for each checkout, with timestamp
             // total has been 400K; need to handle 100M of records; to be safe: 1G to be safe
+            ... should have a Checkout collection
+            ... should also have a Titles collection?
         [ ] Summaries/stats
             [ ] Time periods: today, this week, this month, this year, date-to-date
             [ ] Particular authors

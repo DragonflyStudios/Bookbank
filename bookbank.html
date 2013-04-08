@@ -4,7 +4,7 @@
 
 <body>
   <div id="outer">
-    <h1>Today at the Children's Book Bank</h1>
+    <h1>Check out a book</h1>
     {{> book_out}}
     {{> daily_out}}
     {{> titles}}
@@ -12,16 +12,18 @@
 </body>
 
 <template name="book_out">
-  <div class="book_out">
+  <div class="book_out" align="center">
     <div>
       {{> isbn_input}}
+      <input type="button" class="dec" value=" Add " />
+      <p/>
       <div class="book">
-        <input type="text">{{title}}</span>
+        <input type="text" >{{title}}</span>
         <input type="text">{{author}}</span>
-        <input type="isbn">{{isbn}}</span>
-        <input type="button" class="dec" value=" - " />
+        <p/>
+        <input type="button" class="dec" value="  -  " />
         <input type="count">{{count}}</span>
-        <input type="button" class="inc" value=" + " />
+        <input type="button" class="inc" value="  +  " />
       </div>
     </div>
   </div>
